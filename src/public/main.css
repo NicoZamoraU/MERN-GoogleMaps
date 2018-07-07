@@ -1,0 +1,77 @@
+html, body{
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    font-family: sans-serif;
+}
+*, **{
+    margin: 0;
+    padding: 0;
+}
+
+.App-logo {
+    animation: App-logo-spin infinite 20s linear;
+    height: auto;
+}
+
+@keyframes App-logo-spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+/*
+* Sidebar
+*/
+
+.sidebar {
+    position: fixed;
+    width: 200px;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 100;
+    padding: 10px 0 0; /* Height of navbar */
+    box-shadow: inset -1px 0 0 rgba(0, 0, 0, .1);
+}
+
+.sidebar-sticky {
+    position: relative;
+    top: 0;
+    height: 100vh;
+    overflow-x: hidden;
+    overflow-y: auto; /* Scrollable contents if viewport is shorter than content. */
+}
+
+@supports ((position: -webkit-sticky) or (position: sticky)) {
+.sidebar-sticky {
+    position: -webkit-sticky;
+    position: sticky;
+}
+}
+.contMap{
+    position: fixed;
+    left: 200px;
+    right: 0;
+    height: 100%;
+    overflow: hidden;
+}
+#map{
+    position: relative;
+    height: 100%;
+    width: 100%;
+}
+
+a{
+    text-decoration: none;
+    text-align: center;
+    color: black;
+    transition: ease-in-out all 0.5s;
+    -moz-transition: ease-in-out all 0.5s;
+}
+a:hover{
+    text-decoration: none;
+    color:  blue;
+}
+a li {
+    padding: 10px 0;
+}
