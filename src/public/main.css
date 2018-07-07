@@ -75,3 +75,17 @@ a:hover{
 a li {
     padding: 10px 0;
 }
+ul>li{
+    text-decoration: none;
+    text-align: center;
+    color: black;
+    transition: ease-in-out all 0.5s;
+    -moz-transition: ease-in-out all 0.5s;
+}
+.nav > div > button{
+    padding: 0 0;
+    min-height: 30px;
+    max-height: 30px;
+    min-width: 30px;
+    max-width: 30px;
+}
