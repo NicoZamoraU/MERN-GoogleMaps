@@ -2,6 +2,8 @@ import React, { Component } from 'react';
 const { compose, withProps, lifecycle } = require("recompose");
 import {withScriptjs, withGoogleMap, GoogleMap, Marker } from "react-google-maps"
 import { withPropsOnChange } from 'recompose';
+import { construct } from '../../node_modules/react-google-maps/lib/utils/MapChildHelper';
+import possibleConstructorReturn from '../../node_modules/babel-runtime/helpers/possibleConstructorReturn';
 
 // const { MarkerWithLabel } = require("react-google-maps/lib/components/addons/MarkerWithLabel");
 const { StandaloneSearchBox } = require("react-google-maps/lib/components/places/StandaloneSearchBox");
@@ -11,8 +13,11 @@ class App extends Component {
     constructor(){
         super();
         this.state = {
-            name: 'Santiago, Chile',
-            coords: { lat: -33.4378305, long: -70.65044920000003 },
+            id: '',
+            name: '',
+            markerName: 'Santiago, Chile',
+            coords: '',
+            markerCoords: { lat: -33.4378305, long: -70.65044920000003 },
             tasks: [],
             places: {},
             defaultCenter: {}
@@ -51,9 +56,47 @@ class App extends Component {
         .catch(err => console.log(err));
         this.getTasks();
     }
+    showMarker(name, lat, lng){
+        let v = {name: name, coords: {lat: lat, long: lng}};
+        this.setState({markerName:name,markerCoords:v.coords});
+    }
+    showAndAddTask(name, lat, lng) {
+        let v = {name: name, coords: {lat: lat, long: lng}};
+        this.setState({markerName:name,markerCoords:v.coords});
+        fetch('/api/tasks', {
+            method: 'POST',
+            body: JSON.stringify(v),
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(res => res.json())
+        .then(data => {
+            console.log(data);
+        })
+        .catch(err => console.log(err));
+        this.getTasks();
+    }
     deleteTask(id){
+        if(confirm('¿Estás seguro de eliminarlo?')){
+            fetch(`/api/tasks/${id}`, {
+                method: 'DELETE',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(res => res.json())
+            .then(data => console.log(data));
+            this.getTasks();
+        }
+    }
+
+    editTask(id, name, coords){
         fetch(`/api/tasks/${id}`, {
-            method: 'DELETE',
+            method: 'PUT',
+            body: JSON.stringify({name: name,coords:coords}),
             headers: {
                 'Accept': 'application/json',
                 'Content-Type': 'application/json'
@@ -63,10 +106,11 @@ class App extends Component {
         .then(data => console.log(data));
         this.getTasks();
     }
-    settingPlace(name, coords){
-        this.setState({coords});
-        console.log(coords)
-        this.setState({name})
+
+    settingPlace(markerName, markerCoords){
+        this.setState({markerCoords});
+        console.log(markerCoords)
+        this.setState({markerName})
     }
 
     render() {
@@ -111,10 +155,10 @@ class App extends Component {
                   style={{
                     boxSizing: `border-box`,
                     border: `1px solid transparent`,
-                    width: `92%`,
+                    width: `90%`,
                     height: `32px`,
                     padding: `0 12px`,
-                    margin: `0 6px`,
+                    margin: `0 8px`,
                     borderRadius: `3px`,
                     boxShadow: `0 2px 6px rgba(0, 0, 0, 0.3)`,
                     fontSize: `14px`,
@@ -124,13 +168,18 @@ class App extends Component {
                 />
               </StandaloneSearchBox>
                 {props.places.map(({ place_id, formatted_address, geometry: { location } }) =>
-                <ul key={place_id} className="nav flex-column">
-                  <li className="nav-item" >
-                    {formatted_address} <button onClick={() => this.addTask(formatted_address, location.lat(), location.lng())} className="btn btn-primary">
-                                            <i className="fa fa-star"></i>
-                                        </button>
-                  </li>
+                <ul key={place_id} className="contFav flex-column px-2">
+                    <div id="fav" className="row align-items-center pr-3">
+                        <div className="col nav-item text-center" >
+                            {formatted_address}
+                        </div>
+                        {/* <button onClick={() => this.showMarker(formatted_address, location.lat(), location.lng())} className="btn btn-info"><i className="fa fa-search"></i></button> */}
+                        <button onClick={() => this.showAndAddTask(formatted_address, location.lat(), location.lng())} className="col btn btn-primary">
+                                <i className="fa fa-star"></i>
+                            </button>
+                    </div>
                 </ul>
+                
                 )}
             </div>
           );
@@ -142,7 +191,13 @@ class App extends Component {
                     <a className="col" href="#" onClick={() => this.settingPlace(tasks.name,tasks.coords)}>
                         <li  className="nav-item">{tasks.name}</li>
                     </a>
+                    <button onClick={() => {this.setState({id:tasks._id,name:tasks.name, coords:tasks.coords})}} className="btn btn-info mr-1" data-toggle="modal" data-target="#editModal"><i className="fa fa-pen"></i></button>
                     <button onClick={() => { this.deleteTask(tasks._id) }} className="col btn btn-danger"><i className="fa fa-trash"></i></button>
+                    
+                    {/* Modal Here */}
+                    
+                    
+
                 </div>
             )
         })
@@ -152,24 +207,52 @@ class App extends Component {
             <GoogleMap
                 defaultZoom={10}
                 defaultCenter={{ lat: -33.4378305, lng: -70.65044920000003 }}
-                center={{ lat: this.state.coords.lat, lng: this.state.coords.long }}
+                center={{ lat: this.state.markerCoords.lat, lng: this.state.markerCoords.long }}
             >
             <Marker
-                title={this.state.name}
-                position={{ lat: this.state.coords.lat, lng: this.state.coords.long }}
+                title={this.state.markerName}
+                position={{ lat: this.state.markerCoords.lat, lng: this.state.markerCoords.long }}
             />
             </GoogleMap>
         ))
 
         return(
             <div className="m-0">
+                {/* Edit Modal */}
+                <div className="modal fade" id="editModal" tabIndex="-1" role="dialog" aria-labelledby="editModalTitle" aria-hidden="true" >
+                    <div className="modal-dialog modal-dialog-centered" role="document">
+                        <div className="modal-content">
+                            <div className="modal-body">
+                                <input id="inputEdit" className="form-control" type="text" placeholder={this.state.name} />
+                            </div>
+                            <div className="modal-footer">
+                                <button type="button" className="btn btn-secondary" data-dismiss="modal">Close</button>
+                                <button onClick={ () => { this.editTask(this.state.id, document.getElementById("inputEdit").value,this.state.coords) }} type="button" className="btn btn-primary" data-dismiss="modal">Save changes</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {/* Add Modal */}
+                <div className="modal fade" id="addModal" tabIndex="-1" role="dialog" aria-labelledby="addModalTitle" aria-hidden="true" >
+                    <div className="modal-dialog modal-dialog-centered" role="document">
+                        <div className="modal-content">
+                            <div className="modal-body">
+                                <input id="inputAdd" className="form-control" type="text" placeholder={this.state.name} />
+                            </div>
+                            <div className="modal-footer">
+                                <button type="button" className="btn btn-secondary" data-dismiss="modal">Close</button>
+                                <button onClick={ () => { this.addTask(this.state.id, document.getElementById("inputAdd").value,this.state.coords) }} type="button" className="btn btn-primary" data-dismiss="modal">Save changes</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 <div className="row">
                     <div className="bg-light sidebar">
-                        <div className="sidebar-sticky">
-                            <div className="container">
-                                <h1 className="text-dark text-center">Favorite Places</h1>
-                            </div>
+                        <div className="container">
+                            <h1 className="text-dark text-center">Favorite Places</h1>
+                        </div>
                             <PlacesWithStandaloneSearchBox />
+                        <div className="sidebarIn">
                             <ul className="nav flex-column pl-2 pr-2">
                                 { list }
                             </ul>

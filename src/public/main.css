@@ -25,7 +25,7 @@ html, body{
 
 .sidebar {
     position: fixed;
-    width: 200px;
+    width: 300px;
     top: 0;
     bottom: 0;
     left: 0;
@@ -34,10 +34,12 @@ html, body{
     box-shadow: inset -1px 0 0 rgba(0, 0, 0, .1);
 }
 
-.sidebar-sticky {
-    position: relative;
-    top: 0;
-    height: 100vh;
+.sidebarIn {
+    position: absolute;
+    margin-bottom: 10px;
+    left: 0;
+    bottom: 0;
+    height: 64%;
     overflow-x: hidden;
     overflow-y: auto; /* Scrollable contents if viewport is shorter than content. */
 }
@@ -50,7 +52,7 @@ html, body{
 }
 .contMap{
     position: fixed;
-    left: 200px;
+    left: 300px;
     right: 0;
     height: 100%;
     overflow: hidden;
@@ -74,6 +76,7 @@ a:hover{
 }
 a li {
     padding: 10px 0;
+    text-decoration: none;
 }
 ul>li{
     text-decoration: none;
@@ -88,4 +91,16 @@ ul>li{
     max-height: 30px;
     min-width: 30px;
     max-width: 30px;
+}
+/* Fav */
+#fav > button{
+    padding: 0 0;
+    min-height: 30px;
+    max-height: 30px;
+    min-width: 30px;
+    max-width: 30px;
+}
+.contFav{
+    text-decoration: none;
+    margin-top: 20px;
 }
