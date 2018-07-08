@@ -13,17 +13,19 @@ class App extends Component {
     constructor(){
         super();
         this.state = {
-            id: '',
+            id: 0,
             name: '',
             markerName: 'Santiago, Chile',
             coords: '',
             markerCoords: { lat: -33.4378305, long: -70.65044920000003 },
             tasks: [],
+            nTasks: Number,
             places: {},
             defaultCenter: {}
         }
         this.addTask = this.addTask.bind(this);
         this.settingPlace = this.settingPlace.bind(this);
+        this.showAndAddTask = this.showAndAddTask.bind(this);
     }
     componentDidMount() {
         this.getTasks();
@@ -62,7 +64,7 @@ class App extends Component {
     }
     showAndAddTask(name, lat, lng) {
         let v = {name: name, coords: {lat: lat, long: lng}};
-        this.setState({markerName:name,markerCoords:v.coords});
+        this.setState({name:name,coords:{lat:lat,long:lng},markerName:name,markerCoords:v.coords});
         fetch('/api/tasks', {
             method: 'POST',
             body: JSON.stringify(v),
@@ -75,8 +77,16 @@ class App extends Component {
         .then(data => {
             console.log(data);
         })
-        .catch(err => console.log(err));
-        this.getTasks();
+        .then(() => {
+            fetch('/api/tasks')
+            .then(res => res.json())
+            .then(data => {
+            this.setState({tasks: data});
+        });
+    })
+    .catch(err => console.log(err));
+    $('#addModal').modal('show');
+    this.getTasks();
     }
     deleteTask(id){
         if(confirm('¿Estás seguro de eliminarlo?')){
@@ -105,6 +115,8 @@ class App extends Component {
         .then(res => res.json())
         .then(data => console.log(data));
         this.getTasks();
+        $('#inputEdit').val("");
+        $('#inputAdd').val("");
     }
 
     settingPlace(markerName, markerCoords){
@@ -241,7 +253,7 @@ class App extends Component {
                             </div>
                             <div className="modal-footer">
                                 <button type="button" className="btn btn-secondary" data-dismiss="modal">Close</button>
-                                <button onClick={ () => { this.addTask(this.state.id, document.getElementById("inputAdd").value,this.state.coords) }} type="button" className="btn btn-primary" data-dismiss="modal">Save changes</button>
+                                <button onMouseEnter={() => { this.setState({nTasks:this.state.tasks.length})}} onClick={ () => { this.editTask(this.state.tasks[this.state.nTasks-1]._id, document.getElementById("inputAdd").value,this.state.coords) }} type="button" className="btn btn-primary" data-dismiss="modal">Save changes</button>
                             </div>
                         </div>
                     </div>
