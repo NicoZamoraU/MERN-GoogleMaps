@@ -114,9 +114,9 @@ class App extends Component {
         })
         .then(res => res.json())
         .then(data => console.log(data));
-        this.getTasks();
         $('#inputEdit').val("");
         $('#inputAdd').val("");
+        this.getTasks();
     }
 
     settingPlace(markerName, markerCoords){
@@ -249,11 +249,11 @@ class App extends Component {
                     <div className="modal-dialog modal-dialog-centered" role="document">
                         <div className="modal-content">
                             <div className="modal-body">
-                                <input id="inputAdd" className="form-control" type="text" placeholder={this.state.name} />
+                                <input onFocus={() => { this.setState({nTasks:this.state.tasks.length})}} id="inputAdd" className="form-control" type="text" placeholder={this.state.name} />
                             </div>
                             <div className="modal-footer">
                                 <button type="button" className="btn btn-secondary" data-dismiss="modal">Close</button>
-                                <button onMouseEnter={() => { this.setState({nTasks:this.state.tasks.length})}} onClick={ () => { this.editTask(this.state.tasks[this.state.nTasks-1]._id, document.getElementById("inputAdd").value,this.state.coords) }} type="button" className="btn btn-primary" data-dismiss="modal">Save changes</button>
+                                <button onClick={ () => { this.editTask(this.state.tasks[this.state.nTasks-1]._id, document.getElementById("inputAdd").value,this.state.coords) }} type="button" className="btn btn-primary" data-dismiss="modal">Save changes</button>
                             </div>
                         </div>
                     </div>
