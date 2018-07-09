@@ -249,6 +249,7 @@ class App extends Component {
                     <div className="modal-dialog modal-dialog-centered" role="document">
                         <div className="modal-content">
                             <div className="modal-body">
+                                <h3 className="modal-title">Guardar favorito como:</h3>
                                 <input onFocus={() => { this.setState({nTasks:this.state.tasks.length})}} id="inputAdd" className="form-control" type="text" placeholder={this.state.name} />
                             </div>
                             <div className="modal-footer">
